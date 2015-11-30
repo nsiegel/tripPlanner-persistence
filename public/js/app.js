@@ -131,7 +131,7 @@ $(function () {
     };
 
     $addPlaceButton.on('click', function () {
-
+        // var today = currentDay;
         var $this = $(this);
         var sectionName = $this.parent().attr('id').split('-')[0];
         var $listToAppendTo = $('#' + sectionName + '-list').find('ul');
@@ -144,6 +144,17 @@ $(function () {
 
         days[currentDay - 1].push({place: placeObj, marker: createdMapMarker, section: sectionName});
         $listToAppendTo.append(createItineraryItem(placeName));
+
+        $.ajax({
+            method: 'POST',
+            url: '/api/days/' + currentDay + '/' + sectionName + '?name=' + placeName,
+            success: function (responseData) {
+                console.log(responseData[0])
+            },
+            error: function (errorObj) {
+                // some code to run if the request errors out
+            }
+        })
 
         mapFit();
 
@@ -164,12 +175,26 @@ $(function () {
     });
 
     $dayButtons.on('click', '.day-btn', function () {
+        var $this = $(this);
         setDay($(this).index() + 1);
+        var $day = $this.text()
+        // $.ajax({
+        //     method: 'GET',
+        //     url: '/api/days/' + $day ,
+        //     success: function (responseData) {
+        //         console.log(responseData[0])
+        //     },
+        //     error: function (errorObj) {
+        //         // some code to run if the request errors out
+        //     }
+        // })
     });
 
     $addDayButton.on('click', function () {
+       
 
         var currentNumOfDays = days.length;
+        var today = currentNumOfDays + 1;
         var $newDayButton = createDayButton(currentNumOfDays + 1);
 
         $addDayButton.before($newDayButton);
@@ -177,12 +202,58 @@ $(function () {
         setDayButtons();
         setDay(currentNumOfDays + 1);
 
+        console.log
+
+        $.ajax({
+            method: 'POST',
+            url: '/api/days/' + today,
+            success: function (responseData) {
+                console.log(responseData[0])
+            },
+            error: function (errorObj) {
+                // some code to run if the request errors out
+            }
+        })
+
+        //  $.ajax({
+        //     method: 'GET',
+        //     url: '/api/days',
+        //     success: function (responseData) {
+        //         console.log(responseData)
+        //     },
+        //     error: function (errorObj) {
+        //         // some code to run if the request errors out
+        //     }
+        // });
+
     });
 
     $dayTitle.children('button').on('click', function () {
 
         removeDay(currentDay);
 
+    });
+
+    //Get all days on page load
+    //  $.ajax({
+    //         method: 'GET',
+    //         url: '/api/days',
+    //         success: function (responseData) {
+    //             console.log(responseData)
+    //         },
+    //         error: function (errorObj) {
+    //             // some code to run if the request errors out
+    //         }
+    // });
+      $.ajax({
+            method: 'POST',
+            url: '/api/days/1',
+            success: function (responseData) {
+                console.log(responseData)
+            },
+            error: function (errorObj) {
+                // some code to run if the request errors out
+            }
     });
 
 });
