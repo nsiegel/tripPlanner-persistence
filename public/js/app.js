@@ -1,10 +1,10 @@
+var days = [
+    []
+];
+
 $(function () {
 
     var map = initialize_gmaps();
-
-    var days = [
-        []
-    ];
 
     var currentDay = 1;
 
@@ -186,4 +186,3 @@ $(function () {
     });
 
 });
-
