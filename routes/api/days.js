@@ -7,14 +7,12 @@ var Hotel = models.Hotel;
 var Restaurant = models.Restaurant;
 var Activity = models.Activity;
 
-console.log(models.Day);
 
 router.get('/api/days', function(req, res, next) {
-  Day.find({}).exec()
-  .then(function(days) {
-    res.send(days);
-    // res.render('index', {all_days: days});
-  });
+  Day.find({}).populate('hotels restaurants activities').exec()
+  .then(function(day) {
+    res.send(day);
+  }).then(null, next);
 });
 
 router.get('/api/days/:day', function(req, res, next) {
@@ -28,14 +26,12 @@ router.get('/api/days/:day', function(req, res, next) {
 
 router.post('/api/days/:day', function(req, res, next) {
   var currentDay = req.params.day;
-  console.log("Current day " + currentDay);
   Day.findOne({number: currentDay}).exec()
   .then(function(result){
-  	console.log(result);
   	if(!result){
   		Day.create({number: currentDay});
   	}
-  })
+  });
   next();
 });
 
@@ -50,25 +46,33 @@ router.post('/api/days/:day/:sectionName', function(req, res, next) {
   if(sectionName === 'restaurants') searchName = Restaurant;
   if(sectionName === 'activities') searchName = Activity;
 
-	
+
   searchName.findOne({name: placeName}).exec()
   .then(function(result){
-  	
+
   	Day.findOne({number: currentDay}).exec()
   	.then(function(day){
-  		console.log("we're getting here");
   		if(sectionName === 'hotels'){
   			day[sectionName] = result._id;
-  			console.log(day.sectionName);
   			day.save();
   		} else {
   			day[sectionName].push(result._id);
   			day.save();
   		}
-  		
-  	})
-  })
+  	});
+  });
 
+});
+
+router.get('/test', function(req, res, next) {
+  Day.find({}).populate('hotels restaurants activities').exec()
+  .then(function(day) {
+    res.send(day);
+  });
+  // Day.findOne({number: 1}).populate('hotels restaurants activities').exec()
+  // .then(function(day) {
+  //   res.send(day);
+  // });
 });
 
 
