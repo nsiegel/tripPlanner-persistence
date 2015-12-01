@@ -71,9 +71,9 @@ $(function () {
 
         $placeLists.empty();
 
-        dayPlaces.forEach(function (place) {
-            place.marker.setMap(null);
-        });
+        // dayPlaces.forEach(function (place) {
+        //     place.marker.setMap(null);
+        // });
 
     };
 
@@ -95,9 +95,9 @@ $(function () {
         var bounds = new google.maps.LatLngBounds();
         var currentPlaces = days[currentDay - 1];
 
-        currentPlaces.forEach(function (place) {
-            bounds.extend(place.marker.position);
-        });
+        // currentPlaces.forEach(function (place) {
+        //     bounds.extend(place.marker.position);
+        // });
 
         map.fitBounds(bounds);
 
@@ -117,8 +117,11 @@ $(function () {
         currentDay = dayNum;
 
         placesForThisDay.forEach(function (place) {
-            $('#' + place.section + '-list').find('ul').append(createItineraryItem(place.place.name));
-            place.marker.setMap(map);
+          console.log(place);
+
+                $('#' + place.section + '-list').find('ul').append(createItineraryItem(place.place.name));
+
+            // place.marker.setMap(map);
         });
 
         $dayButtons.removeClass('current-day');
@@ -196,6 +199,44 @@ $(function () {
         });
     };
 
+    var keepDays = function(dayObjArr) {
+      var dayArr = [];
+      dayObjArr.forEach(function(dayObj) {
+        var day = [];
+        // var newActivityObj = {}
+        // newActivityObj.place = dayObj.hotels;
+        // newActivityObj.section = "hotels";
+        // day.push(newActivityObj);
+
+        if(dayObj.hotels) {
+          day.push({
+            place: dayObj.hotels,
+            section: 'hotels'
+          });
+        }
+        if(dayObj.activities.length > 0) {
+
+          dayObj.activities.forEach(function(activity) {
+            console.log(activity)
+            day.push({
+              place: activity,
+              section: 'activities'
+            });
+          });
+        }
+        if(dayObj.restaurants.length > 0) {
+          dayObj.restaurants.forEach(function(restaurant) {
+            day.push({
+              place: restaurant,
+              section: 'restaurants'
+            });
+          });
+        }
+        dayArr.push(day);
+      });
+      days = dayArr;
+    };
+
     $addDayButton.on('click', addDayFunc);
 
     $dayTitle.children('button').on('click', function () {
@@ -207,21 +248,13 @@ $(function () {
     method: 'GET',
     url: '/api/days',
     success: function (days) {
-          console.log(days);
+        console.log(days);
         days.forEach(function(day, index) {
           if (index > 0){
             addDayFunc();
-            // console.log(day);
-            // var placeName = $(this).siblings('select').val();
-            Object.keys(day).forEach(function(key) {
-              var $listToAppendTo = $('#' + key + '-list').find('ul');
-              console.log($listToAppendTo);
-            });
-            createItineraryItem();
           }
         });
-
-
+        keepDays(days);
     },
     error: function (errorObj) {
         // some code to run if the request errors out
